@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Kaiseki\WordPress\NinjaFormsUserManagement;
 
 use Kaiseki\Utility\NestedArray;
-use Kaiseki\WordPress\Hook\HookCallbackProviderInterface;
+use Kaiseki\WordPress\Hook\HookProviderInterface;
 
-final class FilterUserSettings implements HookCallbackProviderInterface
+use function add_filter;
+
+final class FilterUserSettings implements HookProviderInterface
 {
     /**
+     * @param NestedArray          $nestedArray
      * @param array<string, mixed> $userSettings
      */
     public function __construct(
@@ -18,7 +21,7 @@ final class FilterUserSettings implements HookCallbackProviderInterface
     ) {
     }
 
-    public function registerHookCallbacks(): void
+    public function addHooks(): void
     {
         add_filter('ninja_forms_register_user_settings', [$this, 'filterUserSettings']);
     }
@@ -30,6 +33,10 @@ final class FilterUserSettings implements HookCallbackProviderInterface
      */
     public function filterUserSettings(array $settings): array
     {
+        if ($this->userSettings === []) {
+            return $settings;
+        }
+
         return $this->nestedArray->mergeDeep($settings, $this->getUserSettingsWithoutUnavailableFields($settings));
     }
 
@@ -40,12 +47,15 @@ final class FilterUserSettings implements HookCallbackProviderInterface
      */
     private function getUserSettingsWithoutUnavailableFields(array $settings): array
     {
-        foreach ($this->userSettings as $key => $value) {
+        $updatedUserSettings = $this->userSettings;
+
+        foreach ($updatedUserSettings as $key => $value) {
             if (isset($settings[$key])) {
                 continue;
             }
-            unset($this->userSettings[$key]);
+            unset($updatedUserSettings[$key]);
         }
-        return $this->userSettings;
+
+        return $updatedUserSettings;
     }
 }

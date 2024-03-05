@@ -12,6 +12,9 @@ final class ConfigProvider
     public function __invoke(): array
     {
         return [
+            'ninja_forms_user_management' => [
+                'user_settings' => [],
+            ],
             'hook' => [
                 'provider' => [],
             ],

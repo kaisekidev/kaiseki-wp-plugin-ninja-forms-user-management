@@ -12,9 +12,10 @@ final class FilterUserSettingsFactory
 {
     public function __invoke(ContainerInterface $container): FilterUserSettings
     {
-        $config = Config::get($container);
+        $config = Config::fromContainer($container);
         /** @var array<mixed> $userSettings */
-        $userSettings = $config->array('ninja_forms_user_management/user_settings');
+        $userSettings = $config->array('ninja_forms_user_management.user_settings');
+
         return new FilterUserSettings(
             $container->get(NestedArray::class),
             $userSettings
