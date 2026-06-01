@@ -8,6 +8,10 @@ use Kaiseki\Utility\NestedArray;
 use Kaiseki\WordPress\Hook\HookProviderInterface;
 
 use function add_filter;
+use function array_filter;
+use function is_string;
+
+use const ARRAY_FILTER_USE_KEY;
 
 final class FilterUserSettings implements HookProviderInterface
 {
@@ -37,7 +41,9 @@ final class FilterUserSettings implements HookProviderInterface
             return $settings;
         }
 
-        return $this->nestedArray->mergeDeep($settings, $this->getUserSettingsWithoutUnavailableFields($settings));
+        $merged = $this->nestedArray->mergeDeep($settings, $this->getUserSettingsWithoutUnavailableFields($settings));
+
+        return array_filter($merged, static fn(int|string $key): bool => is_string($key), ARRAY_FILTER_USE_KEY);
     }
 
     /**
